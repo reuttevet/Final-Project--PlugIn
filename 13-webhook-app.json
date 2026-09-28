@@ -1,0 +1,728 @@
+{
+  "name": "WF13 - Webhook לאפליקציה",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## WF13 — Webhook לאפליקציה (Base44)\n**מה זה עושה:** זו נקודת הכניסה היחידה של אפליקציית הניהול למערכת. האפליקציה שולחת POST אחד עם גוף `{ action, table, payload }`, ו-n8n מנתב אותו לפעולה המתאימה.\n\n**למה זה חשוב:** כך מפתח ה-Airtable לעולם לא יושב בקוד שרץ בדפדפן — הוא נמצא רק כאן, ב-Credential של n8n. האפליקציה לא מכירה אותו בכלל.\n\n### הפעולות הנתמכות\n| action | גוף הבקשה | מה חוזר |\n|---|---|---|\n| `chat` | `{ action, message }` | `{ ok, reply }` |\n| `list` | `{ action, table, limit }` | `{ ok, records }` |\n| `create` | `{ action, table, payload }` | `{ ok, record }` |\n| `update` | `{ action, table, payload }` (payload חייב לכלול `id`) | `{ ok, record }` |\n\n**שמות טבלה מותרים:** `Invoices` · `Leads` · `Products` · `Tasks`\n\n**חיבור האפליקציה:** כתובת ה-Production של הצומת `בקשה מהאפליקציה` נשמרת כ-secret באפליקציית Base44.",
+        "height": 400,
+        "width": 760,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        -320
+      ],
+      "id": "3a141408-71ec-4932-8476-1381f277c96f",
+      "name": "פתק הסבר 1"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "erp-app",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -64,
+        272
+      ],
+      "id": "a0c5f095-f343-4d9c-ad21-f06b1c08b233",
+      "name": "בקשה מהאפליקציה",
+      "notesInFlow": true,
+      "webhookId": "f13f13f1-1313-4313-8313-f13f13f13f13",
+      "notes": "שלב 1 — מקבל את כל הבקשות מהאפליקציה: { action, table, payload }."
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "8f4250e0-3cad-f6da-c62e-34f1ce05b12a",
+                    "leftValue": "={{ $json.body.action }}",
+                    "rightValue": "chat",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "chat"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "05e303f9-95c1-fd7f-2b86-b8c0984e37a3",
+                    "leftValue": "={{ $json.body.action }}",
+                    "rightValue": "list",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "list"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b15c58f7-0406-969f-fa9c-6b2e41734773",
+                    "leftValue": "={{ $json.body.action }}",
+                    "rightValue": "create",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "create"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "12f026f2-8a05-9a5d-c906-083645fb9d9d",
+                    "leftValue": "={{ $json.body.action }}",
+                    "rightValue": "update",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "update"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "unknown"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        256,
+        144
+      ],
+      "id": "0dde9590-4c83-4f2d-ab7f-bb7d7f0b054a",
+      "name": "ניתוב לפי פעולה",
+      "notesInFlow": true,
+      "notes": "שלב 2 — מנתב לפי השדה action: chat / list / create / update. כל ערך אחר יוצא ל-unknown."
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.message }}",
+        "options": {
+          "systemMessage": "אתה העוזר של אפליקציית הניהול הפנימית של PlugIn. המשתמש הוא בעל העסק או עובד שלו, והוא כותב אליך מתוך פאנל הצ'אט באפליקציה.\n\nכללי עבודה:\n1. ענה בעברית, קצר ומעשי.\n2. לשאלות על מדיניות העסק — השתמש בכלי policies.\n3. לשאלות על מוצרים, מחירים ומפרטים — השתמש בכלי products.\n4. אם המידע לא נמצא בכלים — אמור זאת במפורש במקום לנחש.\n5. אינך מבצע כתיבה לטבלאות. כתיבה נעשית דרך הפעולות create ו-update של ה-Webhook.",
+          "maxIterations": 6
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        656,
+        -272
+      ],
+      "id": "cc96d466-d1a5-49e9-8116-e7da6d165411",
+      "name": "סוכן האפליקציה",
+      "notesInFlow": true,
+      "notes": "שלב 3א — סוכן הצ'אט של האפליקציה. שולף מהמאגר הווקטורי ועונה בעברית."
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        624,
+        32
+      ],
+      "id": "3fa159af-bc3a-43d4-a615-c72820822f42",
+      "name": "מודל שפה",
+      "notesInFlow": true,
+      "credentials": {
+        "openAiApi": {
+          "id": "Ur2cI8wcD96eBmXp",
+          "name": "OpenAI account 6"
+        }
+      },
+      "notes": "המוח: מודל OpenAI."
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('בקשה מהאפליקציה').item.json.body.sessionId || 'app-user' }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        768,
+        48
+      ],
+      "id": "648d2e23-5a76-4d35-9e05-5cf45ea820be",
+      "name": "זיכרון שיחה",
+      "notesInFlow": true,
+      "notes": "זיכרון שיחה לפאנל הצ'אט באפליקציה."
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1328,
+        0
+      ],
+      "id": "8293f294-f445-489a-9709-0a835df82264",
+      "name": "המרה לווקטורים",
+      "notesInFlow": true,
+      "credentials": {
+        "openAiApi": {
+          "id": "Ur2cI8wcD96eBmXp",
+          "name": "OpenAI account 6"
+        }
+      },
+      "notes": "אותו מודל embeddings שבו נבנו המאגרים — חובה שיהיה זהה."
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true, reply: $json.output }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1088,
+        -416
+      ],
+      "id": "585b00a2-18a5-4b0a-8492-45c387e0f085",
+      "name": "תשובה - שיחה",
+      "notesInFlow": true,
+      "notes": "שלב 4א — מחזיר לאפליקציה { ok, reply }. פאנל הצ'אט מציג את השדה reply."
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appqXVC2uospFtYbh",
+          "mode": "list",
+          "cachedResultName": "PlugIn",
+          "cachedResultUrl": "https://airtable.com/appqXVC2uospFtYbh"
+        },
+        "table": {
+          "__rl": true,
+          "value": "={{ $('בקשה מהאפליקציה').item.json.body.table }}",
+          "mode": "id"
+        },
+        "returnAll": false,
+        "limit": "={{ $json.body.limit || 100 }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        848,
+        208
+      ],
+      "id": "a0b47ac5-ed40-48bf-877a-19d1dc882fd2",
+      "name": "קריאת רשומות",
+      "notesInFlow": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "uznH1WOPnYGIe39N",
+          "name": "Airtable Personal Access Token account"
+        }
+      },
+      "notes": "שלב 3ב — קורא רשומות מהטבלה ששמה נשלח בשדה table."
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { records: $input.all().map(i => ({ id: i.json.id, fields: i.json.fields || i.json })) } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1632,
+        32
+      ],
+      "id": "e2af53a4-b857-46b5-9db9-eac47188f9d1",
+      "name": "תשובה - רשימה",
+      "notesInFlow": true,
+      "notes": "שלב 4ב — מחזיר את הרשומות כמערך records. פריט ריק שנוצר כשאין תוצאות מסונן החוצה."
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ JSON.stringify($json.body.payload) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        640,
+        384
+      ],
+      "id": "b83836f7-1911-4ffa-beba-6598ece11f09",
+      "name": "הכנת רשומה חדשה",
+      "notesInFlow": true,
+      "notes": "שלב 3ג — פורש את payload לשדות עצמאיים, כדי שהמיפוי לטבלה יהיה אוטומטי."
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appqXVC2uospFtYbh",
+          "mode": "list",
+          "cachedResultName": "PlugIn",
+          "cachedResultUrl": "https://airtable.com/appqXVC2uospFtYbh"
+        },
+        "table": {
+          "__rl": true,
+          "value": "={{ $('בקשה מהאפליקציה').item.json.body.table }}",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        992,
+        464
+      ],
+      "id": "713984dc-b824-42cf-91c4-ace5219832b4",
+      "name": "יצירת רשומה",
+      "notesInFlow": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "uznH1WOPnYGIe39N",
+          "name": "Airtable Personal Access Token account"
+        }
+      },
+      "notes": "שלב 3ד — יוצר רשומה. שמות השדות ב-payload חייבים להיות זהים לשמות בטבלה."
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true, action: 'create', record: Object.assign({ id: $json.id }, $json.fields || $json) }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1488,
+        304
+      ],
+      "id": "03c4cacf-86e1-47d3-a672-897a548df53c",
+      "name": "תשובה - נוצר",
+      "notesInFlow": true,
+      "notes": "שלב 4ג — מחזיר את הרשומה שנוצרה."
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ JSON.stringify($json.body.payload) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        704,
+        560
+      ],
+      "id": "de844827-1214-479d-be2a-8f495af3233c",
+      "name": "הכנת עדכון",
+      "notesInFlow": true,
+      "notes": "שלב 3ה — פורש את payload. חייב לכלול שדה id של הרשומה לעדכון."
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appqXVC2uospFtYbh",
+          "mode": "list",
+          "cachedResultName": "PlugIn",
+          "cachedResultUrl": "https://airtable.com/appqXVC2uospFtYbh"
+        },
+        "table": {
+          "__rl": true,
+          "value": "={{ $('בקשה מהאפליקציה').item.json.body.table }}",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        992,
+        656
+      ],
+      "id": "1e6e1775-8e12-4cec-864d-7bbb6ffe4fca",
+      "name": "עדכון רשומה",
+      "notesInFlow": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "uznH1WOPnYGIe39N",
+          "name": "Airtable Personal Access Token account"
+        }
+      },
+      "notes": "שלב 3ו — מעדכן רשומה קיימת לפי שדה id."
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true, action: 'update', record: Object.assign({ id: $json.id }, $json.fields || $json) }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1264,
+        640
+      ],
+      "id": "18cb178a-fbf9-45df-8439-772a8524b803",
+      "name": "תשובה - עודכן",
+      "notesInFlow": true,
+      "notes": "שלב 4ד — מחזיר את הרשומה המעודכנת."
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: false, error: 'פעולה לא מוכרת: ' + ($json.body.action || 'ריק'), allowed: ['chat','list','create','update'] }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        496,
+        720
+      ],
+      "id": "6d78dec6-f075-4264-ba43-ae4cb641245d",
+      "name": "תשובה - פעולה לא מוכרת",
+      "notesInFlow": true,
+      "notes": "שלב 4ה — action שאינו מוכר מקבל שגיאה 400 עם רשימת הפעולות המותרות."
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "חיפוש במדיניות העסק: החזרות, אחריות, משלוחים, תשלומים ומסמכי מס.",
+        "qdrantCollection": {
+          "__rl": true,
+          "value": "Policies",
+          "mode": "list",
+          "cachedResultName": "Policies"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "typeVersion": 1.3,
+      "position": [
+        944,
+        -128
+      ],
+      "id": "9605a845-cda2-4b80-8ee2-5fc43357d11d",
+      "name": "Qdrant Vector Store",
+      "credentials": {
+        "qdrantApi": {
+          "id": "SvCRAS73n7ySi9cH",
+          "name": "Qdrant account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "חיפוש בקטלוג המוצרים: שם, קטגוריה, מחיר, מפרט וזמינות.",
+        "qdrantCollection": {
+          "__rl": true,
+          "value": "Products",
+          "mode": "list",
+          "cachedResultName": "Products"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "typeVersion": 1.3,
+      "position": [
+        1488,
+        -240
+      ],
+      "id": "b39a1083-a9a5-40ca-a201-a749f7919e3e",
+      "name": "Qdrant Vector Store1",
+      "credentials": {
+        "qdrantApi": {
+          "id": "SvCRAS73n7ySi9cH",
+          "name": "Qdrant account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "בקשה מהאפליקציה": {
+      "main": [
+        [
+          {
+            "node": "ניתוב לפי פעולה",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ניתוב לפי פעולה": {
+      "main": [
+        [
+          {
+            "node": "סוכן האפליקציה",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "קריאת רשומות",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "הכנת רשומה חדשה",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "הכנת עדכון",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "תשובה - פעולה לא מוכרת",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "סוכן האפליקציה": {
+      "main": [
+        [
+          {
+            "node": "תשובה - שיחה",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "קריאת רשומות": {
+      "main": [
+        [
+          {
+            "node": "תשובה - רשימה",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "הכנת רשומה חדשה": {
+      "main": [
+        [
+          {
+            "node": "יצירת רשומה",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "יצירת רשומה": {
+      "main": [
+        [
+          {
+            "node": "תשובה - נוצר",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "הכנת עדכון": {
+      "main": [
+        [
+          {
+            "node": "עדכון רשומה",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "עדכון רשומה": {
+      "main": [
+        [
+          {
+            "node": "תשובה - עודכן",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "מודל שפה": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "סוכן האפליקציה",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "זיכרון שיחה": {
+      "ai_memory": [
+        [
+          {
+            "node": "סוכן האפליקציה",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "המרה לווקטורים": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          },
+          {
+            "node": "Qdrant Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qdrant Vector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "סוכן האפליקציה",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qdrant Vector Store1": {
+      "ai_tool": [
+        [
+          {
+            "node": "סוכן האפליקציה",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "fae7e7d2-7be2-4243-872f-301d140a4dec",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "07575430e90b765819bb767e9d4ab70d4544ee7d93176bac9436678f7b3851f7"
+  },
+  "nodeGroups": [],
+  "id": "ZrbTRa3F8i0G5skD",
+  "tags": []
+}

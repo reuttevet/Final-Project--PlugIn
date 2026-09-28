@@ -1,0 +1,458 @@
+{
+  "name": "2 - Leads -> Airtable",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "a35ea6d4-19c5-4c9d-be27-dc92d9a3a566",
+        "options": {
+          "ipWhitelist": ""
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -896,
+        160
+      ],
+      "id": "97ddef9a-9ce0-473c-9299-ddccf672d24a",
+      "name": "Webhook",
+      "webhookId": "a35ea6d4-19c5-4c9d-be27-dc92d9a3a566"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appqXVC2uospFtYbh",
+          "mode": "list",
+          "cachedResultName": "PlugIn",
+          "cachedResultUrl": "https://airtable.com/appqXVC2uospFtYbh"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblVmvDxD3gRp9Rjw",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appqXVC2uospFtYbh/tblVmvDxD3gRp9Rjw"
+        },
+        "filterByFormula": "=  {Email} = '{{ $('Webhook').item.json.body.Email }}'",
+        "returnAll": false,
+        "limit": 1,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        -624,
+        160
+      ],
+      "id": "6d5f6d98-9e43-4df1-86a0-4cc9862976e2",
+      "name": "Search records",
+      "alwaysOutputData": true,
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "0Rmeqwzp3VHkhOyq",
+          "name": "Airtable account 6"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "58d562e4-4f00-4df7-911d-df79fe81c3b8",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -240,
+        128
+      ],
+      "id": "a28554c7-0e2f-4676-8b42-0c99e68a39b0",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appqXVC2uospFtYbh",
+          "mode": "list",
+          "cachedResultName": "PlugIn",
+          "cachedResultUrl": "https://airtable.com/appqXVC2uospFtYbh"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblVmvDxD3gRp9Rjw",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appqXVC2uospFtYbh/tblVmvDxD3gRp9Rjw"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Status": "New",
+            "Email": "={{ $('Webhook').item.json.body.Email }}",
+            "Name": "={{ $('Webhook').item.json.body.Name }}",
+            "Phone": "={{ $('Webhook').item.json.body.Phone }}",
+            "Interest": "={{ $('Webhook').item.json.body.Interest }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "New",
+                  "value": "New"
+                },
+                {
+                  "name": "Contacted",
+                  "value": "Contacted"
+                },
+                {
+                  "name": "Replied",
+                  "value": "Replied"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Created",
+              "displayName": "Created",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Interest",
+              "displayName": "Interest",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "typecast": false
+        }
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "09b75287-ed39-445c-8d4f-f5eee630cc8a",
+      "name": "Create a record",
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "0Rmeqwzp3VHkhOyq",
+          "name": "Airtable account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "reut321@gmail.com",
+        "subject": "לקוח חדש",
+        "message": "אהלן!  רצינו לעניין אותך במוצרים חדשים שעשווים לעניין אותך! הנה הקישור למוצרים חדשים (להשלים).",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -368,
+        320
+      ],
+      "id": "3646e7bf-690b-45ce-ac8e-07ef1d4363fe",
+      "name": "Send a message",
+      "webhookId": "321e5c6a-06e4-44df-b6ff-76994b96295d",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "LhINZGfbdlSrq5RQ",
+          "name": "Gmail account 7"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "קליטת לידים\nמקבל ליד חדש, בודק כפילות לפי אימייל, ויוצר רשומה רק אם הוא לא קיים.\n",
+        "height": 216,
+        "width": 252,
+        "color": 3
+      },
+      "id": "36a84b09-25cf-40bf-8161-e9bdf6b774ba",
+      "name": "📝 Webhook1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1456,
+        -48
+      ]
+    },
+    {
+      "parameters": {
+        "content": "Webhook\nנקודת הכניסה. מקבל ליד חדש בבקשת POST (שם / אימייל / טלפון) שמגיעה מלקוח בטלגרם.\n",
+        "height": 248,
+        "width": 204,
+        "color": 5
+      },
+      "id": "f1b80568-5cab-4622-9d63-dc2f4b12cf54",
+      "name": "📝 Webhook",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -928,
+        -96
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### Search records\nמחפש בטבלת Leads ב-Airtable אם כבר קיימת רשומה עם אותו אימייל (filterByFormula על שדה Email). מוגבל לתוצאה אחת — לזיהוי כפילויות.",
+        "height": 232,
+        "width": 204,
+        "color": 5
+      },
+      "id": "6d31f33c-48f1-4fb2-9658-c0e12b3ef813",
+      "name": "📝 Search records",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -656,
+        -96
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### If\nבודק אם לא נמצאה רשומה קיימת (id לא קיים) — כלומר זה ליד חדש. אם כן ממשיך ליצירה; אחרת עוצר.",
+        "height": 200,
+        "width": 204,
+        "color": 5
+      },
+      "id": "05456f30-3939-45b9-88f5-3f5a08077653",
+      "name": "📝 If",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -304,
+        -112
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### Create a record\nיוצר רשומת ליד חדשה בטבלת Leads עם Name / Email / Phone מהטופס ו-Status = 'New'.",
+        "height": 152,
+        "width": 268,
+        "color": 5
+      },
+      "id": "a32698cf-97db-41eb-a685-81d7976434f1",
+      "name": "📝 Create a record",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        112,
+        -144
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### Send a message\nשולח מייל התראה על הליד דרך Gmail.\n",
+        "height": 216,
+        "width": 220,
+        "color": 5
+      },
+      "id": "3e74fdbc-3af0-42cd-ba3c-2fdeedb5e9ff",
+      "name": "📝 Send a message",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -176,
+        400
+      ]
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "reuttevet.app.n8n.cloud",
+            "user-agent": "n8n",
+            "content-length": "101",
+            "accept": "application/json,text/html,application/xhtml+xml,application/xml,text/*;q=0.9, image/*;q=0.8, */*;q=0.7",
+            "accept-encoding": "gzip, br",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "20.52.126.15",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "DE",
+            "cf-ray": "a410db59fcb0d3a8-FRA",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "content-type": "application/json",
+            "x-forwarded-for": "20.52.126.15, 172.71.172.36",
+            "x-forwarded-host": "reuttevet.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-29-669b78b6dd-x28qj",
+            "x-is-trusted": "yes",
+            "x-real-ip": "20.52.126.15"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "Name": "דנה איבגי",
+            "Email": "reut321@gmail.com",
+            "Company": "מקלדות",
+            "Source": "Telegram"
+          },
+          "webhookUrl": "https://reuttevet.app.n8n.cloud/webhook/a35ea6d4-19c5-4c9d-be27-dc92d9a3a566",
+          "executionMode": "production"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Search records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Create a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "3552efa3-cc92-44e3-9d5a-554af6fe5693",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "07575430e90b765819bb767e9d4ab70d4544ee7d93176bac9436678f7b3851f7"
+  },
+  "nodeGroups": [],
+  "id": "go5SLZL3Itnj56SY",
+  "tags": []
+}

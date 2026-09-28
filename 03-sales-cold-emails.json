@@ -1,0 +1,362 @@
+{
+  "name": "3 - Sales Cold Emails",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 3
+            }
+          ]
+        }
+      },
+      "id": "0b3422c6-b41e-403d-b05c-1cf3a7df9c77",
+      "name": "Every 3 Hours",
+      "position": [
+        -1280,
+        32
+      ],
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appqXVC2uospFtYbh",
+          "mode": "list",
+          "cachedResultName": "PlugIn",
+          "cachedResultUrl": "https://airtable.com/appqXVC2uospFtYbh"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblVmvDxD3gRp9Rjw",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appqXVC2uospFtYbh/tblVmvDxD3gRp9Rjw"
+        },
+        "filterByFormula": "Status='New'",
+        "returnAll": false,
+        "limit": 10,
+        "options": {}
+      },
+      "id": "654a605a-49d8-41da-b33e-c3d4e4153e58",
+      "name": "Search New Leads",
+      "position": [
+        -976,
+        32
+      ],
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "retryOnFail": true,
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "0Rmeqwzp3VHkhOyq",
+          "name": "Airtable account 6"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ 'Write a short, friendly cold sales email in Hebrew to a business lead named ' + $json.Name + ' (company: ' + ($json.Company || 'לא ידוע') + ') who is interested in: ' + ($json.Interest || 'מוצרי אלקטרוניקה') + '. We are PlugIn, an Israeli electronics retailer. One clear call to action. Max 120 words. Return only the email body.' }}"
+      },
+      "id": "c2a33393-dd0c-487a-adce-117bf98567ea",
+      "name": "Write Cold Email",
+      "position": [
+        -672,
+        16
+      ],
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Search New Leads').item.json.Email }}",
+        "subject": "הצעה מיוחדת מ-PlugIn",
+        "message": "={{ $json.text }}",
+        "options": {}
+      },
+      "id": "2283a529-40f3-4993-8e49-349d7097ed37",
+      "name": "Send Email",
+      "position": [
+        -304,
+        16
+      ],
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "webhookId": "b0033b40-e2c4-42ea-9d68-09eee650e7a3",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "LhINZGfbdlSrq5RQ",
+          "name": "Gmail account 7"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appqXVC2uospFtYbh",
+          "mode": "list",
+          "cachedResultName": "PlugIn",
+          "cachedResultUrl": "https://airtable.com/appqXVC2uospFtYbh"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblVmvDxD3gRp9Rjw",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appqXVC2uospFtYbh/tblVmvDxD3gRp9Rjw"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Search New Leads').item.json.id }}",
+            "Status": "Contacted"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "dd0b89d6-5ad3-4341-ad43-2fa395a15f17",
+      "name": "Mark Contacted",
+      "position": [
+        0,
+        0
+      ],
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "G3SsbcmIEo4I7GoR",
+          "name": "Airtable account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "gpt-5.4-mini",
+        "options": {}
+      },
+      "id": "78a1f3fe-925f-4f09-9517-2eb49696760c",
+      "name": "Chat Model",
+      "position": [
+        -816,
+        240
+      ],
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "credentials": {
+        "openAiApi": {
+          "id": "HMvdqIgUuyf4vGwX",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": ".סוכן מכירות — מיילים קרים\nבודק כל שעות שעות לידים שלא הייתה עליהם התייחסות ושולח מייל קר",
+        "height": 216,
+        "width": 252,
+        "color": 3
+      },
+      "id": "3c8feda7-e0c0-4ce5-b884-ce96ba56ccf4",
+      "name": "📝 Webhook1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1392,
+        -256
+      ]
+    },
+    {
+      "parameters": {
+        "content": "מחפש ליד שלא קיבל התייחסות, בסטאטוס NEW",
+        "height": 168,
+        "width": 150,
+        "color": 5
+      },
+      "id": "0f460ca6-a1c0-405c-a29e-4a1fba01121f",
+      "name": "📝 Webhook",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -960,
+        -176
+      ]
+    },
+    {
+      "parameters": {
+        "content": "שולח מייל קר ראשוני",
+        "height": 88,
+        "width": 150,
+        "color": 5
+      },
+      "id": "d9fe40b3-e5ce-4216-906a-87a5d8e479f4",
+      "name": "📝 Webhook2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -352,
+        -96
+      ]
+    },
+    {
+      "parameters": {
+        "content": "לאחר שליחת מייל ראשוני, מסמן את הליד בסטאטוס Contacted",
+        "height": 88,
+        "width": 150,
+        "color": 5
+      },
+      "id": "8e6528a6-7ead-42c2-9aa3-a404cc77cc98",
+      "name": "📝 Webhook3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        16,
+        -112
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Every 3 Hours": {
+      "main": [
+        [
+          {
+            "node": "Search New Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search New Leads": {
+      "main": [
+        [
+          {
+            "node": "Write Cold Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email": {
+      "main": [
+        [
+          {
+            "node": "Mark Contacted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Cold Email": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Write Cold Email",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "2db4edd8-8b2b-47d0-9a24-efc9d4573dc1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "07575430e90b765819bb767e9d4ab70d4544ee7d93176bac9436678f7b3851f7"
+  },
+  "nodeGroups": [],
+  "id": "G6cIIrAyf1UHEUVH",
+  "tags": []
+}

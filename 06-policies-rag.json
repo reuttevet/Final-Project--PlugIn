@@ -1,0 +1,216 @@
+{
+  "name": "6 - Policies Rag",
+  "nodes": [
+    {
+      "parameters": {
+        "dataType": "binary",
+        "options": {}
+      },
+      "id": "81162d68-e751-45a4-bc1d-76b698d59726",
+      "name": "Load Documents",
+      "position": [
+        192,
+        448
+      ],
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "formTitle": "Upload Policies",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "File",
+              "fieldType": "file"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        -400,
+        288
+      ],
+      "id": "8e6d3c72-7be5-47aa-aba5-707c35fffdb8",
+      "name": "On form submission",
+      "webhookId": "04f6d47b-d7fd-44a7-ad08-f8e3f5af3f3c"
+    },
+    {
+      "parameters": {
+        "content": "### Embeddings\nיוצר embeddings (וקטורים) למסמך באמצעות OpenAI — ההצגה המספרית של הטקסט לחיפוש סמנטי.",
+        "height": 168,
+        "width": 204,
+        "color": 5
+      },
+      "id": "a4c41096-6bc4-4085-8d50-0b679d51c47a",
+      "name": "📝 Embeddings",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -416,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### Load Documents\nטוען את המסמך שהוגש והופך אותו לפורמט מסמכים שה-vector store יודע לעבד.",
+        "height": 152,
+        "width": 172,
+        "color": 5
+      },
+      "id": "d65a833f-485d-45d6-ab3d-c7c237eabd4f",
+      "name": "📝 Load Documents",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        272,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### On form submission\nטריגר טופס — דרכו מעלים מסמכי מדיניות / נהלים להטמעה במאגר הווקטורי.",
+        "height": 184,
+        "width": 204,
+        "color": 5
+      },
+      "id": "a7a35bda-52fe-42b7-8cf9-32df613c1604",
+      "name": "📝 On form submission",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -416,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### Simple Vector Store\nמאחסן את הווקטורים במאגר וקטורי בזיכרון (mode = insert). זה ה'ידע' שסוכן ה-RAG שולף ממנו לגבי נהלים.",
+        "height": 200,
+        "width": 188,
+        "color": 5
+      },
+      "id": "227797ea-196f-4d1b-99ac-9606931dbdb9",
+      "name": "📝 Simple Vector Store",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### On form submission\nטריגר טופס — דרכו מעלים מסמכי מדיניות / נהלים להטמעה במאגר הווקטורי.",
+        "height": 536,
+        "width": 268,
+        "color": 3
+      },
+      "id": "dc082145-4b90-4b69-9c95-d2c6f5ae283e",
+      "name": "📝 On form submission1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -784,
+        48
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "qdrantCollection": {
+          "__rl": true,
+          "value": "Policies",
+          "mode": "list",
+          "cachedResultName": "Policies"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "typeVersion": 1.3,
+      "position": [
+        -80,
+        256
+      ],
+      "id": "c4940ba0-4c17-4aba-b746-032a496433f7",
+      "name": "Qdrant Vector Store",
+      "credentials": {
+        "qdrantApi": {
+          "id": "SvCRAS73n7ySi9cH",
+          "name": "Qdrant account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -176,
+        448
+      ],
+      "id": "487d892d-025c-4a04-95ae-bf33187fa207",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "Ur2cI8wcD96eBmXp",
+          "name": "OpenAI account 6"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Load Documents": {
+      "ai_document": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "fb156d6c-3402-4e54-a98a-592af283c3db",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "07575430e90b765819bb767e9d4ab70d4544ee7d93176bac9436678f7b3851f7"
+  },
+  "nodeGroups": [],
+  "id": "9or58isKjNO1GKQg",
+  "tags": []
+}

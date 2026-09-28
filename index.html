@@ -1,0 +1,719 @@
+<title>קוקפיט בוקר</title>
+<meta name="description" content="ממשק ניהול לעסק אלקטרוניקה — דשבורד, טבלאות, טפסים וצ'אט, מחובר ל-n8n">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;600;700&family=Heebo:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#F5F7FA; --surface:#FFFFFF; --surface-2:#FBFCFE;
+  --ink:#0F1B2D; --muted:#5B6B82; --faint:#8496AC;
+  --line:#E4E9F0; --line-2:#EEF2F7;
+  --accent:#2563EB; --accent-soft:#E7EEFE; --accent-ink:#1D4ED8;
+  --good:#16A34A; --good-soft:#E4F5EA;
+  --warn:#B45309; --warn-soft:#FBEEDC;
+  --crit:#DC2626; --crit-soft:#FCE7E7;
+  --info:#7C3AED; --info-soft:#F0E9FE;
+  --shadow:0 1px 2px rgba(15,27,45,.06),0 4px 16px rgba(15,27,45,.05);
+  --shadow-lg:0 8px 40px rgba(15,27,45,.16);
+  --r:14px; --r-sm:9px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0B1220; --surface:#111A2B; --surface-2:#0F1826;
+  --ink:#EAF0F8; --muted:#9DAEC4; --faint:#6E7F97;
+  --line:#22314A; --line-2:#1A2740;
+  --accent:#5B8DEF; --accent-soft:#17263F; --accent-ink:#8FB2F6;
+  --good:#3DD07E; --good-soft:#12281C;
+  --warn:#E3A552; --warn-soft:#2A2110;
+  --crit:#F06D6D; --crit-soft:#2A1516;
+  --info:#B292F7; --info-soft:#201735;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.35);
+  --shadow-lg:0 10px 44px rgba(0,0,0,.55);
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0B1220; --surface:#111A2B; --surface-2:#0F1826;
+  --ink:#EAF0F8; --muted:#9DAEC4; --faint:#6E7F97;
+  --line:#22314A; --line-2:#1A2740;
+  --accent:#5B8DEF; --accent-soft:#17263F; --accent-ink:#8FB2F6;
+  --good:#3DD07E; --good-soft:#12281C;
+  --warn:#E3A552; --warn-soft:#2A2110;
+  --crit:#F06D6D; --crit-soft:#2A1516;
+  --info:#B292F7; --info-soft:#201735;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.35);
+  --shadow-lg:0 10px 44px rgba(0,0,0,.55);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Heebo",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  -webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums;}
+#root{height:100%}
+.app{display:flex;flex-direction:row-reverse;min-height:100%;direction:rtl}
+/* Sidebar (right in RTL) */
+.side{width:236px;flex:0 0 236px;background:var(--surface);border-inline-start:1px solid var(--line);
+  display:flex;flex-direction:column;position:sticky;top:env(safe-area-inset-top,0px);height:100vh}
+.brand{display:flex;align-items:center;gap:10px;padding:18px 18px 14px}
+.brand .logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--accent),#5B8DEF);
+  display:grid;place-items:center;color:#fff;flex:0 0 auto}
+.brand b{font-family:"Rubik";font-weight:700;font-size:16px;letter-spacing:.2px}
+.brand span{display:block;font-size:11px;color:var(--faint);font-weight:500}
+.nav{display:flex;flex-direction:column;gap:2px;padding:8px 10px;overflow:auto}
+.nav button{display:flex;align-items:center;gap:11px;width:100%;text-align:start;border:0;cursor:pointer;
+  background:transparent;color:var(--muted);font:inherit;font-weight:500;padding:10px 12px;border-radius:10px}
+.nav button:hover{background:var(--line-2);color:var(--ink)}
+.nav button.on{background:var(--accent-soft);color:var(--accent-ink);font-weight:600}
+.nav button .ic{width:19px;height:19px;flex:0 0 auto}
+.nav .badge{margin-inline-start:auto;background:var(--line);color:var(--muted);font-size:11px;
+  font-weight:600;padding:1px 7px;border-radius:20px}
+.nav button.on .badge{background:var(--accent);color:#fff}
+.side .foot{margin-top:auto;padding:12px;border-top:1px solid var(--line-2);display:flex;gap:8px;align-items:center}
+.side .foot .who{font-size:12px;color:var(--muted)}
+.side .foot .who b{color:var(--ink);font-size:13px;display:block;font-weight:600}
+/* Main */
+.main{flex:1 1 auto;min-width:0;display:flex;flex-direction:column}
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 82%,transparent);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:14px 22px;display:flex;align-items:center;gap:14px}
+.topbar h1{font-family:"Rubik";margin:0;font-size:20px;font-weight:600}
+.topbar .sub{color:var(--faint);font-size:12.5px;font-weight:500}
+.spacer{flex:1}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-weight:600;
+  padding:8px 14px;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.btn:hover{border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{background:var(--accent-ink);color:#fff}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn.sm{padding:5px 10px;font-size:12.5px;border-radius:8px}
+.iconbtn{width:38px;height:38px;padding:0;justify-content:center;border-radius:10px}
+.content{padding:22px;max-width:1240px;width:100%;margin:0 auto}
+.demo-bar{display:flex;align-items:center;gap:10px;background:var(--warn-soft);color:var(--warn);
+  border:1px solid color-mix(in srgb,var(--warn) 30%,transparent);border-radius:10px;padding:9px 13px;font-size:12.5px;font-weight:600;margin-bottom:18px}
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 17px;box-shadow:var(--shadow)}
+.kpi .lab{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12.5px;font-weight:600}
+.kpi .lab .dot{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:0 0 auto}
+.kpi .val{font-family:"Rubik";font-size:27px;font-weight:700;margin-top:12px;letter-spacing:-.5px}
+.kpi .meta{font-size:12px;color:var(--faint);margin-top:3px;font-weight:500}
+.grid2{display:grid;grid-template-columns:1.35fr 1fr;gap:14px;margin-top:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.card .hd{display:flex;align-items:center;gap:10px;padding:14px 17px;border-bottom:1px solid var(--line-2)}
+.card .hd h3{margin:0;font-family:"Rubik";font-size:15px;font-weight:600}
+.card .hd .sub{font-size:12px;color:var(--faint);font-weight:500}
+.card .bd{padding:14px 17px}
+/* table */
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.search{position:relative;flex:1;min-width:200px}
+.search input{width:100%;border:1px solid var(--line);background:var(--surface);color:var(--ink);
+  border-radius:10px;padding:9px 38px 9px 12px;font:inherit}
+.search .ic{position:absolute;inset-inline-start:11px;top:50%;transform:translateY(-50%);color:var(--faint)}
+.search input:focus{outline:2px solid var(--accent-soft);border-color:var(--accent)}
+select.filter{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:9px 12px;font:inherit;font-weight:500;cursor:pointer}
+.tablewrap{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+.tscroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:start;color:var(--muted);font-weight:600;font-size:12px;padding:11px 14px;border-bottom:1px solid var(--line);background:var(--surface-2);white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid var(--line-2);white-space:nowrap}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--surface-2)}
+tbody tr:last-child td{border-bottom:0}
+.num{font-variant-numeric:tabular-nums}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:2px 9px;border-radius:20px;white-space:nowrap}
+.pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.9}
+.pill.good{background:var(--good-soft);color:var(--good)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.crit{background:var(--crit-soft);color:var(--crit)}
+.pill.info{background:var(--info-soft);color:var(--info)}
+.pill.neutral{background:var(--line-2);color:var(--muted)}
+.pill.accent{background:var(--accent-soft);color:var(--accent-ink)}
+.doc-link{color:var(--accent-ink);font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
+.doc-link:hover{text-decoration:underline}
+.empty{padding:40px 20px;text-align:center;color:var(--faint)}
+.count{color:var(--faint);font-size:12.5px;font-weight:500;margin-inline-start:auto}
+/* task list */
+.tasklist{display:flex;flex-direction:column;gap:8px}
+.taskrow{display:flex;align-items:center;gap:11px;padding:9px 11px;border:1px solid var(--line-2);border-radius:10px}
+.taskrow .cb{width:19px;height:19px;border-radius:6px;border:2px solid var(--line);flex:0 0 auto}
+.taskrow.done .cb{background:var(--good);border-color:var(--good)}
+.taskrow.done .t{color:var(--faint);text-decoration:line-through}
+.taskrow .t{font-weight:500;font-size:13.5px}
+/* bars */
+.bars{display:flex;flex-direction:column;gap:11px}
+.barrow{display:grid;grid-template-columns:96px 1fr 34px;align-items:center;gap:10px;font-size:13px}
+.barrow .track{background:var(--line-2);border-radius:20px;height:10px;overflow:hidden}
+.barrow .fill{height:100%;border-radius:20px}
+.barrow b{font-weight:600;text-align:start}
+/* drawer */
+.scrim{position:fixed;inset:0;background:rgba(8,14,26,.44);z-index:60;opacity:0;animation:fade .18s forwards}
+@keyframes fade{to{opacity:1}}
+.drawer{position:fixed;inset-block:0;inset-inline-start:0;width:min(440px,94vw);background:var(--surface);
+  z-index:61;box-shadow:var(--shadow-lg);display:flex;flex-direction:column;transform:translateX(-100%);animation:slidein .22s forwards;direction:rtl}
+@keyframes slidein{to{transform:translateX(0)}}
+.drawer .dh{display:flex;align-items:center;gap:12px;padding:17px 18px;border-bottom:1px solid var(--line-2)}
+.drawer .dh h3{margin:0;font-family:"Rubik";font-size:16px}
+.drawer .db{padding:18px;overflow:auto;display:flex;flex-direction:column;gap:2px}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:13px}
+.field label{font-size:12.5px;color:var(--muted);font-weight:600}
+.field input,.field select,.field textarea{border:1px solid var(--line);background:var(--surface-2);color:var(--ink);
+  border-radius:9px;padding:9px 11px;font:inherit;width:100%}
+.field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--accent-soft);border-color:var(--accent);background:var(--surface)}
+.field .err{color:var(--crit);font-size:11.5px;font-weight:600}
+.field.invalid input,.field.invalid select{border-color:var(--crit)}
+.drawer .df{margin-top:auto;padding:15px 18px;border-top:1px solid var(--line-2);display:flex;gap:10px;justify-content:flex-start}
+.kv{display:grid;grid-template-columns:120px 1fr;gap:6px 12px;font-size:13.5px}
+.kv dt{color:var(--muted);font-weight:600}
+.kv dd{margin:0;font-weight:500}
+/* chat */
+.chatfab{position:fixed;inset-block-end:calc(20px + env(safe-area-inset-bottom,0px));inset-inline-start:20px;z-index:50;
+  width:56px;height:56px;border-radius:50%;background:var(--accent);color:#fff;border:0;cursor:pointer;
+  box-shadow:var(--shadow-lg);display:grid;place-items:center}
+.chatpanel{position:fixed;inset-block:0;inset-inline-start:0;width:min(400px,96vw);z-index:62;background:var(--surface);
+  box-shadow:var(--shadow-lg);display:flex;flex-direction:column;transform:translateX(-100%);animation:slidein .22s forwards;direction:rtl}
+.chatpanel .ch{display:flex;align-items:center;gap:10px;padding:15px 17px;border-bottom:1px solid var(--line-2)}
+.chatpanel .ch .av{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--accent),#5B8DEF);display:grid;place-items:center;color:#fff}
+.chatpanel .ch h3{margin:0;font-family:"Rubik";font-size:15px}
+.chatpanel .ch .sub{font-size:11.5px;color:var(--good);font-weight:600}
+.msgs{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:11px}
+.msg{max-width:82%;padding:10px 13px;border-radius:14px;font-size:13.5px;line-height:1.5;white-space:pre-wrap}
+.msg.bot{align-self:flex-start;background:var(--line-2);border-bottom-inline-start-radius:4px}
+.msg.me{align-self:flex-end;background:var(--accent);color:#fff;border-bottom-inline-end-radius:4px}
+.typing{align-self:flex-start;display:flex;gap:4px;padding:12px 14px;background:var(--line-2);border-radius:14px}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--faint);animation:bounce 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-5px);opacity:1}}
+.chatin{padding:12px;border-top:1px solid var(--line-2);display:flex;gap:8px}
+.chatin input{flex:1;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:22px;padding:10px 15px;font:inherit}
+.chatin input:focus{outline:2px solid var(--accent-soft);border-color:var(--accent)}
+.chatin button{width:42px;height:42px;border-radius:50%;border:0;background:var(--accent);color:#fff;cursor:pointer;flex:0 0 auto;display:grid;place-items:center}
+.toast{position:fixed;inset-block-end:calc(20px + env(safe-area-inset-bottom,0px));inset-inline-end:20px;z-index:80;
+  background:var(--ink);color:var(--bg);padding:11px 16px;border-radius:11px;box-shadow:var(--shadow-lg);font-weight:600;font-size:13.5px;
+  display:flex;align-items:center;gap:9px;animation:fade .2s}
+.toast.ok{background:var(--good);color:#fff}
+.toast.bad{background:var(--crit);color:#fff}
+.mobtop{display:none}
+@media (max-width:860px){
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .grid2{grid-template-columns:1fr}
+  .side{position:fixed;inset-inline-end:0;z-index:70;transform:translateX(100%);transition:transform .2s;height:100vh}
+  .side.open{transform:translateX(0);box-shadow:var(--shadow-lg)}
+  .mobtop{display:inline-flex}
+  .content{padding:16px}
+  .topbar{padding:12px 16px}
+}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.001s!important}}
+</style>
+
+<div id="root"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.26.4/babel.min.js"></script>
+<script type="text/babel" data-presets="react">
+const {useState,useEffect,useMemo,useRef} = React;
+
+/* ============================================================
+   API LAYER  —  the ONLY place that talks to the backend.
+   Set WEBHOOK_URL to your n8n webhook (WF13) on deploy.
+   Every call: POST { action, table, payload } -> JSON.
+   In this Claude sandbox network is blocked, so it falls back
+   to DEMO data automatically. On a real deploy it uses n8n.
+   ============================================================ */
+const WEBHOOK_URL = "https://reuttevet.app.n8n.cloud/webhook/erp-app"; // n8n webhook (WF13)
+
+async function api(body){
+  if(WEBHOOK_URL){
+    try{
+      const r = await fetch(WEBHOOK_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+      if(!r.ok) throw new Error("HTTP "+r.status);
+      return await r.json();
+    }catch(e){ /* fall through to demo so the UI still works */ }
+  }
+  return mockApi(body);
+}
+// convenience wrappers matching the contract
+const listRows   = (table,payload={}) => api({action:"list",table,payload});
+const createRow  = (table,fields)     => api({action:"create",table,payload:{fields}});
+const updateRow  = (table,id,fields)  => api({action:"update",table,payload:{id,fields}});
+const sendChat   = (message)          => api({action:"chat",message});
+
+/* ---------------- DEMO DATA (stand-in for Airtable via n8n) ------------- */
+const today=new Date(), ym=today.getFullYear()+"-"+String(today.getMonth()+1).padStart(2,"0");
+const d=(day)=>`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+let DEMO={
+  Customers:[
+    {id:"c1",fields:{Name:"אלון מזרחי",Email:"alon@techstore.co.il",Phone:"052-1234567",Company:"טק-סטור בע\"מ",Created:d(3)}},
+    {id:"c2",fields:{Name:"נועה בר",Email:"noa@studio-b.co.il",Phone:"054-7654321",Company:"סטודיו B",Created:d(5)}},
+    {id:"c3",fields:{Name:"רמי חדד",Email:"rami@haddad.com",Phone:"050-9988776",Company:"חדד הפקות",Created:d(8)}},
+    {id:"c4",fields:{Name:"דנה לוי",Email:"dana@levi.co.il",Phone:"053-2223344",Company:"לוי ושות'",Created:d(11)}},
+    {id:"c5",fields:{Name:"יוסי כהן",Email:"yossi@cohen.io",Phone:"058-4445566",Company:"כהן דיגיטל",Created:d(14)}},
+    {id:"c6",fields:{Name:"מאיה גולן",Email:"maya@golan.co.il",Phone:"052-7778899",Company:"גולן עיצוב",Created:d(16)}},
+  ],
+  Leads:[
+    {id:"l1",fields:{Name:"עידן פרץ",Email:"idan@newco.co.il",Company:"ניוקו",Status:"New",Created:d(15)}},
+    {id:"l2",fields:{Name:"שירה אבני",Email:"shira@avni.com",Company:"אבני מדיה",Status:"Contacted",Created:d(13)}},
+    {id:"l3",fields:{Name:"טל רוזן",Email:"tal@rozen.co.il",Company:"רוזן טכנולוגיות",Status:"Won",Created:d(9)}},
+    {id:"l4",fields:{Name:"אורי שמש",Email:"uri@shemesh.io",Company:"שמש סולאר",Status:"Contacted",Created:d(12)}},
+    {id:"l5",fields:{Name:"הדס מור",Email:"hadas@mor.co.il",Company:"מור ייעוץ",Status:"New",Created:d(16)}},
+    {id:"l6",fields:{Name:"גיא נחום",Email:"guy@nahum.com",Company:"נחום אחזקות",Status:"Lost",Created:d(6)}},
+    {id:"l7",fields:{Name:"ליאת שגב",Email:"liat@segev.co.il",Company:"שגב סטודיו",Status:"Won",Created:d(4)}},
+  ],
+  Orders:[
+    {id:"o1",fields:{OrderNumber:"ORD-1001",CustomerId:"אלון מזרחי",Total:1758,Status:"Fulfilled",Created:d(4)}},
+    {id:"o2",fields:{OrderNumber:"ORD-1002",CustomerId:"נועה בר",Total:429,Status:"Processing",Created:d(10)}},
+    {id:"o3",fields:{OrderNumber:"ORD-1003",CustomerId:"דנה לוי",Total:2490,Status:"Pending",Created:d(14)}},
+    {id:"o4",fields:{OrderNumber:"ORD-1004",CustomerId:"יוסי כהן",Total:807,Status:"Processing",Created:d(16)}},
+  ],
+  Invoices:[
+    {id:"i1",fields:{InvoiceNumber:"INV-0001",CustomerId:"C0001",Amount:1000,VatAmount:180,Total:1180,Status:"Paid",PdfUrl:"https://drive.google.com/file/d/DEMO0001/view",Created:d(2)}},
+    {id:"i2",fields:{InvoiceNumber:"INV-0002",CustomerId:"C0002",Amount:500,VatAmount:90,Total:590,Status:"Ready",PdfUrl:"",Created:d(6)}},
+    {id:"i3",fields:{InvoiceNumber:"INV-0003",CustomerId:"C0003",Amount:750,VatAmount:135,Total:885,Status:"Paid",PdfUrl:"https://drive.google.com/file/d/DEMO0003/view",Created:d(9)}},
+    {id:"i4",fields:{InvoiceNumber:"INV-0004",CustomerId:"C0004",Amount:1500,VatAmount:270,Total:1770,Status:"Issued",PdfUrl:"https://drive.google.com/file/d/DEMO0004/view",Created:d(12)}},
+    {id:"i5",fields:{InvoiceNumber:"INV-0005",CustomerId:"C0001",Amount:2100,VatAmount:378,Total:2478,Status:"Paid",PdfUrl:"https://drive.google.com/file/d/DEMO0005/view",Created:d(15)}},
+    {id:"i6",fields:{InvoiceNumber:"INV-0006",CustomerId:"C0005",Amount:640,VatAmount:115.2,Total:755.2,Status:"Draft",PdfUrl:"",Created:d(16)}},
+  ],
+  Products:[
+    {id:"p1",fields:{Name:"אוזניות אלחוטיות TY-200",Category:"אוזניות",Price:349,InStock:true,Description:"סינון רעשים אקטיבי, עד 30 שעות."}},
+    {id:"p2",fields:{Name:"אוזניות גיימינג TY-Gamer H7",Category:"אוזניות",Price:429,InStock:true,Description:"אלחוטי 2.4GHz, מיקרופון נשלף."}},
+    {id:"p3",fields:{Name:"רמקול בלוטות' TY-Sound Mini",Category:"רמקולים",Price:179,InStock:true,Description:"עמיד למים IP67, צף במים."}},
+    {id:"p4",fields:{Name:"סאונדבר TY-Sound Bar 2.1",Category:"רמקולים",Price:749,InStock:true,Description:"120W עם סאבוופר אלחוטי."}},
+    {id:"p5",fields:{Name:"מסך 27 QHD 165Hz",Category:"מסכים",Price:1290,InStock:true,Description:"IPS, 2560×1440, HDR10."}},
+    {id:"p6",fields:{Name:"מסך אולטרה-רחב 34 UW",Category:"מסכים",Price:2490,InStock:false,Description:"קעור 21:9, USB-C 65W."}},
+    {id:"p7",fields:{Name:"מקלדת מכנית TY-Type MX",Category:"מקלדות",Price:289,InStock:true,Description:"Hot-swap, RGB, עברית-אנגלית."}},
+    {id:"p8",fields:{Name:"עכבר גיימינג TY-Click Pro",Category:"עכברים",Price:259,InStock:true,Description:"26,000 DPI, 68 גרם."}},
+    {id:"p9",fields:{Name:"מצלמת רשת TY-Cam 4K Pro",Category:"מצלמות רשת",Price:549,InStock:true,Description:"4K, אוטופוקוס, HDR."}},
+    {id:"p10",fields:{Name:"עמדת עגינה USB-C TY-Dock 11",Category:"עגינה",Price:399,InStock:true,Description:"11 חיבורים, PD 85W."}},
+    {id:"p11",fields:{Name:"כונן SSD חיצוני 1TB",Category:"אחסון",Price:399,InStock:true,Description:"NVMe, עד 1050MB/s."}},
+    {id:"p12",fields:{Name:"מטען קיר GaN 65W",Category:"מטענים",Price:129,InStock:true,Description:"3 יציאות, קומפקטי."}},
+    {id:"p13",fields:{Name:"התקנת עמדת עבודה בבית",Category:"שירותים",Price:349,InStock:true,Description:"טכנאי מגיע, מחבר ומכוון."}},
+    {id:"p14",fields:{Name:"אבחון מעבדה",Category:"שירותים",Price:89,InStock:true,Description:"דוח אבחון בכתב + הצעת מחיר."}},
+  ],
+  Tasks:[
+    {id:"t1",fields:{Title:"להתקשר ללקוח אלון על הזמנה ORD-1001",Status:"Todo"}},
+    {id:"t2",fields:{Title:"להפיק חשבונית ל-INV-0006",Status:"Todo"}},
+    {id:"t3",fields:{Title:"לתאם התקנה אצל דנה לוי",Status:"Doing"}},
+    {id:"t4",fields:{Title:"לעדכן מלאי מסכים אולטרה-רחב",Status:"Todo"}},
+    {id:"t5",fields:{Title:"לענות לליד עידן פרץ",Status:"Done"}},
+  ],
+};
+function mockApi(body){
+  return new Promise(res=>setTimeout(()=>{
+    const {action,table,payload={}}=body;
+    if(action==="chat"){
+      res({reply:mockAgent(body.message)}); return;
+    }
+    if(action==="list"){ res({records:(DEMO[table]||[]).slice()}); return; }
+    if(action==="create"){
+      const id=table[0].toLowerCase()+Date.now();
+      const rec={id,fields:{...payload.fields, Created:payload.fields.Created||d(today.getDate())}};
+      (DEMO[table]=DEMO[table]||[]).unshift(rec);
+      res({ok:true,record:rec}); return;
+    }
+    if(action==="update"){
+      const arr=DEMO[table]||[]; const r=arr.find(x=>x.id===payload.id);
+      if(r) r.fields={...r.fields,...payload.fields};
+      res({ok:true,record:r}); return;
+    }
+    res({ok:false,error:"unknown action"});
+  }, WEBHOOK_URL?0:260));
+}
+function mockAgent(msg){
+  const m=(msg||"").toLowerCase();
+  if(m.includes("הכנס")||m.includes("רווח")||m.includes("כמה")){
+    const rev=revenueThisMonth();
+    return `החודש נכנסו ${fmt(rev)} מחשבוניות ששולמו. יש ${DEMO.Invoices.filter(i=>i.fields.Status!=="Paid").length} חשבוניות פתוחות.`;
+  }
+  if(m.includes("ליד")) return `יש ${DEMO.Leads.length} לידים. ${DEMO.Leads.filter(l=>l.fields.Status==="New").length} חדשים ממתינים למענה.`;
+  if(m.includes("משימ")) return `יש ${DEMO.Tasks.filter(t=>t.fields.Status!=="Done").length} משימות פתוחות להיום.`;
+  if(m.includes("חשבונית")) return `להפקת חשבונית — פתחי "חשבוניות" ולחצי + חשבונית חדשה. הכתיבה תפעיל את הסוכן ב-n8n שמחשב מע\"מ, מספר ומפיק PDF.`;
+  return "אני העוזר של הקוקפיט. אפשר לשאול אותי על הכנסות, לידים, משימות או לבקש ממני להפיק מסמך. (במצב דמו — בדיפלוי אמיתי זה מגיע מהסוכן ב-n8n.)";
+}
+
+/* ---------------- helpers ---------------- */
+const fmt=(n)=> "₪"+Number(n||0).toLocaleString("he-IL",{maximumFractionDigits:2});
+const fmtDate=(s)=>{ if(!s) return "—"; const p=String(s).slice(0,10).split("-"); return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:s; };
+function revenueThisMonth(){
+  return DEMO.Invoices.filter(i=>i.fields.Status==="Paid" && String(i.fields.Created||"").startsWith(ym))
+    .reduce((s,i)=>s+(+i.fields.Total||0),0);
+}
+const STATUS_STYLE={
+  Paid:["good","שולמה"],Issued:["accent","הופקה"],Ready:["info","מוכנה"],Draft:["neutral","טיוטה"],
+  New:["accent","חדש"],Contacted:["info","נוצר קשר"],Won:["good","נסגר"],Lost:["crit","אבוד"],
+  Todo:["neutral","לביצוע"],Doing:["warn","בתהליך"],Done:["good","הושלם"],
+  Pending:["neutral","ממתינה"],Processing:["warn","בטיפול"],Fulfilled:["good","סופקה"],
+};
+const Pill=({v})=>{ if(v===undefined||v===null||v==="") return <span className="pill neutral">—</span>;
+  const [cls,label]=STATUS_STYLE[v]||["neutral",v]; return <span className={"pill "+cls}>{label}</span>; };
+
+/* ---------------- icons ---------------- */
+const I={
+  dash:"M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z",
+  users:"M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z",
+  lead:"M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z",
+  order:"M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12L8.1 13h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1 1 0 0020 4H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z",
+  invoice:"M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 14H7v-2h10v2zm0-4H7v-2h10v2zm0-4H7V7h10v2z",
+  product:"M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6 0h-4V4h4v2z",
+  task:"M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm-2 14l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z",
+  search:"M15.5 14h-.79l-.28-.27a6.5 6.5 0 10-.7.7l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0A4.5 4.5 0 1114 9.5 4.5 4.5 0 019.5 14z",
+  chat:"M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z",
+  send:"M2.01 21L23 12 2.01 3 2 10l15 2-15 2z",
+  plus:"M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z",
+  close:"M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z",
+  doc:"M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z",
+  menu:"M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z",
+  money:"M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z",
+  sun:"M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58a.996.996 0 00-1.41 0 .996.996 0 000 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37a.996.996 0 00-1.41 0 .996.996 0 000 1.41l1.06 1.06c.39.39 1.03.39 1.41 0a.996.996 0 000-1.41l-1.06-1.06zm1.06-10.96a.996.996 0 000-1.41.996.996 0 00-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36a.996.996 0 000-1.41.996.996 0 00-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z",
+  moon:"M12 3a9 9 0 109 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 01-4.4 2.26 5.403 5.403 0 01-3.14-9.8c-.44-.06-.9-.1-1.36-.1z",
+};
+const Icon=({d,size=20,className=""})=> <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={d}/></svg>;
+
+/* ---------------- table config ---------------- */
+const TABLES={
+  Customers:{label:"לקוחות",icon:I.users,search:["Name","Email","Company"],
+    columns:[{k:"Name",t:"שם"},{k:"Company",t:"חברה"},{k:"Email",t:"אימייל"},{k:"Phone",t:"טלפון"},{k:"Created",t:"נוצר",type:"date"}],
+    form:[{k:"Name",t:"שם",req:true},{k:"Company",t:"חברה"},{k:"Email",t:"אימייל",type:"email"},{k:"Phone",t:"טלפון"}]},
+  Leads:{label:"לידים",icon:I.lead,search:["Name","Email","Company"],filter:{k:"Status",opts:["New","Contacted","Won","Lost"]},
+    columns:[{k:"Name",t:"שם"},{k:"Company",t:"חברה"},{k:"Email",t:"אימייל"},{k:"Status",t:"סטטוס",type:"status"},{k:"Created",t:"נוצר",type:"date"}],
+    form:[{k:"Name",t:"שם",req:true},{k:"Company",t:"חברה"},{k:"Email",t:"אימייל",type:"email"},{k:"Status",t:"סטטוס",type:"select",opts:["New","Contacted","Won","Lost"],req:true}]},
+  Orders:{label:"הזמנות",icon:I.order,search:["OrderNumber","CustomerId"],filter:{k:"Status",opts:["Pending","Processing","Fulfilled"]},
+    columns:[{k:"OrderNumber",t:"מס' הזמנה"},{k:"CustomerId",t:"לקוח"},{k:"Total",t:"סה\"כ",type:"money"},{k:"Status",t:"סטטוס",type:"status"},{k:"Created",t:"נוצר",type:"date"}],
+    form:[{k:"CustomerId",t:"לקוח",req:true},{k:"Total",t:"סה\"כ (₪)",type:"number",req:true},{k:"Status",t:"סטטוס",type:"select",opts:["Pending","Processing","Fulfilled"],req:true}]},
+  Invoices:{label:"חשבוניות",icon:I.invoice,search:["InvoiceNumber","CustomerId"],filter:{k:"Status",opts:["Draft","Ready","Issued","Paid"]},
+    columns:[{k:"InvoiceNumber",t:"מס' חשבונית"},{k:"CustomerId",t:"לקוח"},{k:"Total",t:"סה\"כ",type:"money"},{k:"Status",t:"סטטוס",type:"status"},{k:"PdfUrl",t:"מסמך",type:"doc"},{k:"Created",t:"נוצר",type:"date"}],
+    form:[{k:"CustomerId",t:"מזהה לקוח",req:true},{k:"Amount",t:"סכום לפני מע\"מ (₪)",type:"number",req:true},{k:"Status",t:"סטטוס",type:"select",opts:["Draft","Ready","Issued","Paid"]}]},
+  Products:{label:"מוצרים",icon:I.product,search:["Name","Category","Description"],filter:{k:"Category",opts:["אוזניות","רמקולים","מסכים","מקלדות","עכברים","מצלמות רשת","עגינה","אחסון","מטענים","שירותים"]},
+    columns:[{k:"Name",t:"שם"},{k:"Category",t:"קטגוריה"},{k:"Price",t:"מחיר",type:"money"},{k:"InStock",t:"מלאי",type:"stock"},{k:"Description",t:"תיאור",type:"trunc"}],
+    form:[{k:"Name",t:"שם",req:true},{k:"Category",t:"קטגוריה",req:true},{k:"Price",t:"מחיר (₪)",type:"number",req:true},{k:"Description",t:"תיאור",type:"textarea"}]},
+  Tasks:{label:"משימות",icon:I.task,search:["Title"],filter:{k:"Status",opts:["Todo","Doing","Done"]},
+    columns:[{k:"Title",t:"משימה"},{k:"Status",t:"סטטוס",type:"status"}],
+    form:[{k:"Title",t:"משימה",req:true},{k:"Status",t:"סטטוס",type:"select",opts:["Todo","Doing","Done"],req:true}]},
+};
+
+function Cell({col,val}){
+  if(col.type==="money") return <span className="num">{fmt(val)}</span>;
+  if(col.type==="date") return <span className="num">{fmtDate(val)}</span>;
+  if(col.type==="status") return <Pill v={val}/>;
+  if(col.type==="stock") return val ? <span className="pill good">במלאי</span> : <span className="pill crit">אזל</span>;
+  if(col.type==="doc") return val ? <a className="doc-link" href={val} target="_blank" rel="noopener" onClick={e=>e.stopPropagation()}><Icon d={I.doc} size={15}/>מסמך</a> : <span style={{color:"var(--faint)"}}>—</span>;
+  if(col.type==="trunc") return <span style={{color:"var(--muted)",maxWidth:260,overflow:"hidden",textOverflow:"ellipsis",display:"inline-block",whiteSpace:"nowrap",verticalAlign:"bottom"}}>{val||"—"}</span>;
+  return <span>{val===undefined||val===""?"—":String(val)}</span>;
+}
+
+/* ---------------- Toast ---------------- */
+let toastFn=null;
+function Toaster(){
+  const [t,setT]=useState(null);
+  useEffect(()=>{toastFn=(msg,kind)=>{setT({msg,kind});setTimeout(()=>setT(null),2600);};},[]);
+  if(!t) return null;
+  return <div className={"toast "+(t.kind||"")}>{t.msg}</div>;
+}
+const toast=(m,k)=>toastFn&&toastFn(m,k);
+
+/* ---------------- Dashboard ---------------- */
+function Dashboard({data,go}){
+  const inv=data.Invoices||[], leads=data.Leads||[], tasks=data.Tasks||[];
+  const revenue=inv.filter(i=>i.fields.Status==="Paid"&&String(i.fields.Created||"").startsWith(ym)).reduce((s,i)=>s+(+i.fields.Total||0),0);
+  const open=inv.filter(i=>i.fields.Status!=="Paid");
+  const openSum=open.reduce((s,i)=>s+(+i.fields.Total||0),0);
+  const leadStatuses=["New","Contacted","Won","Lost"];
+  const leadCounts=leadStatuses.map(s=>({s,n:leads.filter(l=>l.fields.Status===s).length}));
+  const maxLead=Math.max(1,...leadCounts.map(x=>x.n));
+  const todo=tasks.filter(t=>t.fields.Status!=="Done");
+  const barColor={New:"var(--accent)",Contacted:"var(--info)",Won:"var(--good)",Lost:"var(--crit)"};
+  return <>
+    <div className="kpis">
+      <div className="kpi">
+        <div className="lab"><span className="dot" style={{background:"var(--good-soft)",color:"var(--good)"}}><Icon d={I.money} size={18}/></span>הכנסות החודש</div>
+        <div className="val">{fmt(revenue)}</div>
+        <div className="meta">מחשבוניות ששולמו · {("0"+(today.getMonth()+1)).slice(-2)}/{today.getFullYear()}</div>
+      </div>
+      <div className="kpi">
+        <div className="lab"><span className="dot" style={{background:"var(--warn-soft)",color:"var(--warn)"}}><Icon d={I.invoice} size={18}/></span>חשבוניות פתוחות</div>
+        <div className="val">{open.length}</div>
+        <div className="meta">{fmt(openSum)} ממתין לתשלום</div>
+      </div>
+      <div className="kpi">
+        <div className="lab"><span className="dot" style={{background:"var(--accent-soft)",color:"var(--accent-ink)"}}><Icon d={I.lead} size={18}/></span>לידים פעילים</div>
+        <div className="val">{leads.filter(l=>["New","Contacted"].includes(l.fields.Status)).length}</div>
+        <div className="meta">מתוך {leads.length} סה"כ</div>
+      </div>
+      <div className="kpi">
+        <div className="lab"><span className="dot" style={{background:"var(--info-soft)",color:"var(--info)"}}><Icon d={I.task} size={18}/></span>משימות להיום</div>
+        <div className="val">{todo.length}</div>
+        <div className="meta">{tasks.filter(t=>t.fields.Status==="Done").length} הושלמו</div>
+      </div>
+    </div>
+    <div className="grid2">
+      <div className="card">
+        <div className="hd"><h3>לידים לפי סטטוס</h3><span className="count">{leads.length} לידים</span></div>
+        <div className="bd">
+          <div className="bars">
+            {leadCounts.map(({s,n})=>{const [,label]=STATUS_STYLE[s];return(
+              <div className="barrow" key={s}>
+                <b>{label}</b>
+                <div className="track"><div className="fill" style={{width:(n/maxLead*100)+"%",background:barColor[s]}}/></div>
+                <span className="num" style={{color:"var(--muted)",fontWeight:600,textAlign:"start"}}>{n}</span>
+              </div>);})}
+          </div>
+        </div>
+      </div>
+      <div className="card">
+        <div className="hd"><h3>משימות להיום</h3><button className="btn sm ghost" onClick={()=>go("Tasks")}>הכל</button></div>
+        <div className="bd">
+          {todo.length===0? <div className="empty">אין משימות פתוחות 🎉</div> :
+            <div className="tasklist">{todo.slice(0,6).map(t=>(
+              <div className={"taskrow "+(t.fields.Status==="Done"?"done":"")} key={t.id}>
+                <span className="cb"/><span className="t">{t.fields.Title}</span>
+                <span style={{marginInlineStart:"auto"}}><Pill v={t.fields.Status}/></span>
+              </div>))}</div>}
+        </div>
+      </div>
+    </div>
+    <div className="card" style={{marginTop:14}}>
+      <div className="hd"><h3>חשבוניות אחרונות</h3><button className="btn sm ghost" onClick={()=>go("Invoices")}>לכל החשבוניות</button></div>
+      <div className="tscroll">
+        <table>
+          <thead><tr><th>מס'</th><th>לקוח</th><th>סה"כ</th><th>סטטוס</th><th>מסמך</th><th>נוצר</th></tr></thead>
+          <tbody>{inv.slice(0,5).map(r=>(
+            <tr key={r.id} onClick={()=>go("Invoices")}>
+              <td><b>{r.fields.InvoiceNumber}</b></td><td>{r.fields.CustomerId}</td>
+              <td><Cell col={{type:"money"}} val={r.fields.Total}/></td>
+              <td><Pill v={r.fields.Status}/></td>
+              <td><Cell col={{type:"doc"}} val={r.fields.PdfUrl}/></td>
+              <td><Cell col={{type:"date"}} val={r.fields.Created}/></td>
+            </tr>))}</tbody>
+        </table>
+      </div>
+    </div>
+  </>;
+}
+
+/* ---------------- Table screen ---------------- */
+function TableScreen({table,rows,loading,onOpen}){
+  const cfg=TABLES[table];
+  const [q,setQ]=useState(""); const [f,setF]=useState("");
+  const filtered=useMemo(()=>rows.filter(r=>{
+    const hitQ=!q||cfg.search.some(k=>String(r.fields[k]||"").toLowerCase().includes(q.toLowerCase()));
+    const hitF=!f||String(r.fields[cfg.filter?.k])===f;
+    return hitQ&&hitF;
+  }),[rows,q,f,table]);
+  return <>
+    <div className="toolbar">
+      <div className="search">
+        <span className="ic"><Icon d={I.search} size={17}/></span>
+        <input placeholder={"חיפוש ב"+cfg.label+"…"} value={q} onChange={e=>setQ(e.target.value)}/>
+      </div>
+      {cfg.filter && <select className="filter" value={f} onChange={e=>setF(e.target.value)}>
+        <option value="">כל הסטטוסים</option>
+        {cfg.filter.opts.map(o=><option key={o} value={o}>{(STATUS_STYLE[o]&&STATUS_STYLE[o][1])||o}</option>)}
+      </select>}
+      <span className="count">{filtered.length} רשומות</span>
+    </div>
+    <div className="tablewrap"><div className="tscroll">
+      <table>
+        <thead><tr>{cfg.columns.map(c=><th key={c.k}>{c.t}</th>)}</tr></thead>
+        <tbody>
+          {loading? <tr><td colSpan={cfg.columns.length}><div className="empty">טוען…</div></td></tr>
+          : filtered.length===0? <tr><td colSpan={cfg.columns.length}><div className="empty">לא נמצאו רשומות</div></td></tr>
+          : filtered.map(r=>(
+            <tr key={r.id} onClick={()=>onOpen(r)}>
+              {cfg.columns.map(c=><td key={c.k}><Cell col={c} val={r.fields[c.k]}/></td>)}
+            </tr>))}
+        </tbody>
+      </table>
+    </div></div>
+  </>;
+}
+
+/* ---------------- Detail drawer ---------------- */
+function DetailDrawer({table,row,onClose}){
+  const cfg=TABLES[table];
+  return <>
+    <div className="scrim" onClick={onClose}/>
+    <aside className="drawer" role="dialog" aria-label="פרטי רשומה">
+      <div className="dh">
+        <button className="btn iconbtn ghost" onClick={onClose} aria-label="סגירה"><Icon d={I.close}/></button>
+        <h3>{row.fields[cfg.columns[0].k]}</h3>
+      </div>
+      <div className="db">
+        <dl className="kv">
+          {cfg.columns.map(c=>(<React.Fragment key={c.k}>
+            <dt>{c.t}</dt><dd><Cell col={c} val={row.fields[c.k]}/></dd>
+          </React.Fragment>))}
+          {row.fields.Description && !cfg.columns.find(c=>c.k==="Description"&&c.type!=="trunc") &&
+            <><dt>תיאור מלא</dt><dd style={{whiteSpace:"normal",lineHeight:1.6}}>{row.fields.Description}</dd></>}
+        </dl>
+      </div>
+    </aside>
+  </>;
+}
+
+/* ---------------- Create form ---------------- */
+function CreateForm({table,onClose,onCreated}){
+  const cfg=TABLES[table];
+  const [v,setV]=useState({}); const [err,setErr]=useState({}); const [busy,setBusy]=useState(false);
+  const set=(k,val)=>setV(s=>({...s,[k]:val}));
+  async function submit(){
+    const e={};
+    cfg.form.forEach(fld=>{ if(fld.req && !String(v[fld.k]??"").trim()) e[fld.k]="שדה חובה"; });
+    setErr(e); if(Object.keys(e).length) return;
+    setBusy(true);
+    const fields={...v};
+    cfg.form.forEach(f=>{ if(f.type==="number"&&fields[f.k]!=null) fields[f.k]=Number(fields[f.k]); });
+    // Invoice: compute VAT/Total client-side for preview; n8n is source of truth on real deploy
+    if(table==="Invoices"&&fields.Amount!=null){ fields.VatAmount=Math.round(fields.Amount*0.18*100)/100; fields.Total=Math.round(fields.Amount*1.18*100)/100; }
+    const res=await createRow(table,fields);
+    setBusy(false);
+    if(res&&res.ok!==false){ toast("נשמר בהצלחה — הטריגר ב-n8n הופעל","ok"); onCreated(); onClose(); }
+    else toast("שמירה נכשלה","bad");
+  }
+  return <>
+    <div className="scrim" onClick={onClose}/>
+    <aside className="drawer" role="dialog" aria-label={"יצירת "+cfg.label}>
+      <div className="dh">
+        <button className="btn iconbtn ghost" onClick={onClose} aria-label="סגירה"><Icon d={I.close}/></button>
+        <h3>רשומה חדשה — {cfg.label}</h3>
+      </div>
+      <div className="db">
+        {cfg.form.map(fld=>(
+          <div className={"field "+(err[fld.k]?"invalid":"")} key={fld.k}>
+            <label htmlFor={"f_"+fld.k}>{fld.t}{fld.req&&" *"}</label>
+            {fld.type==="select"
+              ? <select id={"f_"+fld.k} value={v[fld.k]||""} onChange={e=>set(fld.k,e.target.value)}>
+                  <option value="">בחרי…</option>
+                  {fld.opts.map(o=><option key={o} value={o}>{(STATUS_STYLE[o]&&STATUS_STYLE[o][1])||o}</option>)}
+                </select>
+              : fld.type==="textarea"
+              ? <textarea id={"f_"+fld.k} rows={3} value={v[fld.k]||""} onChange={e=>set(fld.k,e.target.value)}/>
+              : <input id={"f_"+fld.k} type={fld.type==="number"?"number":fld.type==="email"?"email":"text"}
+                  value={v[fld.k]||""} onChange={e=>set(fld.k,e.target.value)}/>}
+            {err[fld.k]&&<span className="err">{err[fld.k]}</span>}
+          </div>))}
+        {table==="Invoices" && <div style={{fontSize:12,color:"var(--faint)",marginTop:-4}}>מע"מ (18%) והסה"כ מחושבים אוטומטית ע"י הסוכן ב-n8n בעת ההפקה.</div>}
+      </div>
+      <div className="df">
+        <button className="btn primary" disabled={busy} onClick={submit}>{busy?"שומר…":"שמירה"}</button>
+        <button className="btn ghost" onClick={onClose}>ביטול</button>
+      </div>
+    </aside>
+  </>;
+}
+
+/* ---------------- Chat ---------------- */
+function ChatPanel({onClose}){
+  const [msgs,setMsgs]=useState([{who:"bot",text:"בוקר טוב! אני העוזר של הקוקפיט. אפשר לשאול על הכנסות, לידים ומשימות, או לבקש להפיק מסמך."}]);
+  const [inp,setInp]=useState(""); const [busy,setBusy]=useState(false);
+  const boxRef=useRef();
+  useEffect(()=>{if(boxRef.current)boxRef.current.scrollTop=boxRef.current.scrollHeight;},[msgs,busy]);
+  async function send(){
+    const text=inp.trim(); if(!text||busy) return;
+    setMsgs(m=>[...m,{who:"me",text}]); setInp(""); setBusy(true);
+    const res=await sendChat(text);
+    setBusy(false);
+    setMsgs(m=>[...m,{who:"bot",text:(res&&res.reply)||"לא התקבלה תשובה מהסוכן."}]);
+  }
+  return <>
+    <div className="scrim" onClick={onClose}/>
+    <aside className="chatpanel" role="dialog" aria-label="עוזר">
+      <div className="ch">
+        <button className="btn iconbtn ghost" onClick={onClose} aria-label="סגירה"><Icon d={I.close}/></button>
+        <span className="av"><Icon d={I.chat} size={18}/></span>
+        <div><h3>עוזר</h3><div className="sub">מחובר ל-n8n</div></div>
+      </div>
+      <div className="msgs" ref={boxRef}>
+        {msgs.map((m,i)=><div key={i} className={"msg "+(m.who==="me"?"me":"bot")}>{m.text}</div>)}
+        {busy && <div className="typing"><i/><i/><i/></div>}
+      </div>
+      <div className="chatin">
+        <input placeholder="כתבי הודעה…" value={inp} onChange={e=>setInp(e.target.value)} onKeyDown={e=>e.key==="Enter"&&send()}/>
+        <button onClick={send} aria-label="שליחה"><Icon d={I.send} size={19}/></button>
+      </div>
+    </aside>
+  </>;
+}
+
+/* ---------------- App shell ---------------- */
+const NAV=["Dashboard","Customers","Leads","Orders","Invoices","Products","Tasks"];
+const NAVMETA={Dashboard:{label:"דשבורד",icon:I.dash}, Tasks:{label:"משימות",icon:I.task}};
+function App(){
+  const [view,setView]=useState("Dashboard");
+  const [data,setData]=useState({});
+  const [loading,setLoading]=useState(true);
+  const [detail,setDetail]=useState(null);
+  const [creating,setCreating]=useState(null);
+  const [chat,setChat]=useState(false);
+  const [sideOpen,setSideOpen]=useState(false);
+  const [theme,setTheme]=useState(()=>{try{return localStorage.getItem("cockpit-theme")||"";}catch(e){return"";}});
+
+  useEffect(()=>{ if(theme){document.documentElement.setAttribute("data-theme",theme);} else {document.documentElement.removeAttribute("data-theme");}
+    try{localStorage.setItem("cockpit-theme",theme);}catch(e){} },[theme]);
+
+  async function loadAll(){
+    setLoading(true);
+    const tables=["Customers","Leads","Orders","Invoices","Products","Tasks"];
+    const out={};
+    await Promise.all(tables.map(async t=>{ const r=await listRows(t); out[t]=(r&&r.records)||[]; }));
+    setData(out); setLoading(false);
+  }
+  useEffect(()=>{loadAll();},[]);
+
+  const go=(v)=>{setView(v);setSideOpen(false);};
+  const meta=NAVMETA[view]||(TABLES[view]&&{label:TABLES[view].label,icon:TABLES[view].icon})||{label:view};
+  const subtitle={Dashboard:"מבט בוקר על העסק",Customers:"ניהול לקוחות",Leads:"מעקב לידים וסטטוסים",
+    Orders:"הזמנות פתוחות וסגורות",Invoices:"חשבוניות ומסמכים",Products:"קטלוג מוצרים ושירותים",Tasks:"משימות הצוות"}[view];
+
+  return <div className="app">
+    <aside className={"side "+(sideOpen?"open":"")}>
+      <div className="brand">
+        <span className="logo"><Icon d={I.dash} size={19}/></span>
+        <div><b>קוקפיט</b><span>ניהול אלקטרוניקה</span></div>
+      </div>
+      <nav className="nav">
+        {NAV.map(v=>{const m=NAVMETA[v]||{label:TABLES[v].label,icon:TABLES[v].icon};
+          const cnt=v!=="Dashboard"&&data[v]?data[v].length:null;
+          return <button key={v} className={view===v?"on":""} onClick={()=>go(v)}>
+            <Icon d={m.icon} className="ic"/>{m.label}
+            {cnt!=null&&<span className="badge">{cnt}</span>}
+          </button>;})}
+      </nav>
+      <div className="foot">
+        <span className="logo" style={{width:32,height:32,fontSize:13}}>ב</span>
+        <div className="who"><b>בעל/ת העסק</b>מחובר/ת</div>
+        <button className="btn iconbtn ghost" style={{marginInlineStart:"auto"}} onClick={()=>setTheme(t=>t==="dark"?"light":"dark")} aria-label="החלפת ערכת נושא">
+          <Icon d={theme==="dark"?I.sun:I.moon} size={18}/>
+        </button>
+      </div>
+    </aside>
+
+    <main className="main">
+      <header className="topbar">
+        <button className="btn iconbtn ghost mobtop" onClick={()=>setSideOpen(o=>!o)} aria-label="תפריט"><Icon d={I.menu}/></button>
+        <div>
+          <h1>{meta.label}</h1>
+          <div className="sub">{subtitle}</div>
+        </div>
+        <div className="spacer"/>
+        {TABLES[view]&&["Customers","Leads","Orders","Invoices"].includes(view) &&
+          <button className="btn primary" onClick={()=>setCreating(view)}><Icon d={I.plus} size={18}/>{TABLES[view].label==="לקוחות"?"לקוח חדש":TABLES[view].label==="לידים"?"ליד חדש":TABLES[view].label==="הזמנות"?"הזמנה חדשה":"חשבונית חדשה"}</button>}
+      </header>
+      <div className="content">
+        <div className="demo-bar">
+          <Icon d={I.invoice} size={16}/>
+          מצב דמו — הנתונים לדוגמה. חברי את ה-webhook של n8n (משתנה WEBHOOK_URL) כדי לעבוד על נתונים אמיתיים.
+        </div>
+        {view==="Dashboard" && <Dashboard data={data} go={go}/>}
+        {TABLES[view] && <TableScreen table={view} rows={data[view]||[]} loading={loading} onOpen={r=>setDetail({table:view,row:r})}/>}
+        {view==="Tasks" && null}
+      </div>
+    </main>
+
+    {detail && <DetailDrawer table={detail.table} row={detail.row} onClose={()=>setDetail(null)}/>}
+    {creating && <CreateForm table={creating} onClose={()=>setCreating(null)} onCreated={loadAll}/>}
+    {chat && <ChatPanel onClose={()=>setChat(false)}/>}
+    {!chat && <button className="chatfab" onClick={()=>setChat(true)} aria-label="פתיחת עוזר"><Icon d={I.chat} size={24}/></button>}
+    <Toaster/>
+  </div>;
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>

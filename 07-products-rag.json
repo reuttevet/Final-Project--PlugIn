@@ -1,0 +1,236 @@
+{
+  "name": "7 - Products RAG",
+  "nodes": [
+    {
+      "parameters": {
+        "dataType": "binary",
+        "loader": "csvLoader",
+        "textSplittingMode": "custom",
+        "options": {}
+      },
+      "id": "8a58c7aa-abcf-4c7f-975d-e592363c896e",
+      "name": "Load Documents",
+      "position": [
+        576,
+        416
+      ],
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "chunkSize": 800,
+        "chunkOverlap": 100,
+        "options": {}
+      },
+      "id": "2b828763-bee5-49e2-8800-8ecae4c273d2",
+      "name": "Split Text",
+      "position": [
+        464,
+        544
+      ],
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "formTitle": "Upload Products CSV",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "File",
+              "fieldType": "file"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        272
+      ],
+      "id": "6f41dee7-6330-4fff-92e7-26bca23af4bf",
+      "name": "On form submission",
+      "webhookId": "4cd18682-14af-4c4b-a392-5ef81355af9b"
+    },
+    {
+      "parameters": {
+        "content": "### RAG\n\nהעלאת קבצים וקידוד וקטורים\nמוצרי החנות ושירותים\nטוען את קובץ המוצרים שהוגש לפורמט מסמכים.\n",
+        "height": 536,
+        "width": 268,
+        "color": 3
+      },
+      "id": "30614e4a-4e45-4dcc-a787-79a532f5bc6b",
+      "name": "📝 On form submission2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        48
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### Simple Vector Store\nמכניס את וקטורי המוצרים למאגר הווקטורי בזיכרון (mode = insert) — הבסיס לשליפת מידע מוצרים על ידי ה-AI.\n",
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        368,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "bba9f585-1b58-4c35-84f5-be68d901eb3b",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "### Split Text\nמפצל את הטקסט לקטעים חופפים (Recursive Character Text Splitter) כדי שכל קטע ייכנס בגודל סביר ל-embedding.\n",
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        688,
+        576
+      ],
+      "typeVersion": 1,
+      "id": "bf816796-9958-4522-8b19-f23203a93d15",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "### On form submission\nטריגר טופס — דרכו מעלים קטלוג / מידע מוצרים להטמעה.\n",
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "a6f952b1-56e4-4e91-8f5d-a3685c0da28f",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "### Embeddings\nיוצר embeddings לכל קטע מוצרים באמצעות OpenAI.",
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        80,
+        592
+      ],
+      "typeVersion": 1,
+      "id": "f78b2ff7-61c5-4d2d-94ec-07d44c82b638",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "qdrantCollection": {
+          "__rl": true,
+          "value": "Products",
+          "mode": "list",
+          "cachedResultName": "Products"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "typeVersion": 1.3,
+      "position": [
+        320,
+        224
+      ],
+      "id": "47462ba3-cc6d-4436-bd9d-cb81b7d1cb20",
+      "name": "Qdrant Vector Store",
+      "credentials": {
+        "qdrantApi": {
+          "id": "SvCRAS73n7ySi9cH",
+          "name": "Qdrant account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        192,
+        448
+      ],
+      "id": "7a9b3b89-12c1-4904-a8f2-f7187331ed8f",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "Ur2cI8wcD96eBmXp",
+          "name": "OpenAI account 6"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Load Documents": {
+      "ai_document": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Text": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Load Documents",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "7b9d5ab4-1ffb-4631-a532-de67588c090d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "07575430e90b765819bb767e9d4ab70d4544ee7d93176bac9436678f7b3851f7"
+  },
+  "nodeGroups": [],
+  "id": "GGPqeJDJvFmuF5Ti",
+  "tags": []
+}

@@ -1,0 +1,461 @@
+{
+  "name": "5 - Customer Service",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        0,
+        240
+      ],
+      "id": "da419991-92f2-42e4-b56a-7acd0a05b7d3",
+      "name": "Telegram Trigger",
+      "webhookId": "e5f6d07f-5f74-4ee1-9a3d-e2674668af63",
+      "credentials": {
+        "telegramApi": {
+          "id": "ItAnM1f0Jf8uJa7g",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "אתה נציג שירות ומכירות של PlugIn, חנות אלקטרוניקה. ענה בעברית, קצר ואדיב.\n\nמידע:\nהשתמש בכלים policies ו-products כדי לשלוף מידע, וענה רק לפי מה שחזר מהם.\nאם המידע לא נמצא — אמור: \"אין לי מידע על זה, אעביר לנציג אנושי\".\nאל תמציא מחירים, מדיניות, זמינות מלאי או פרטים.\n\nאיסוף לידים:\nכשלקוח מתעניין במוצר, מבקש הצעת מחיר או מבקש שיחזרו אליו:\n1. בקש בנימוס את שמו המלא, מספר הטלפון ואימייל.\n2. אחרי שקיבלת שם + (טלפון או אימייל) — הפעל את הכלי save_lead פעם אחת עם כל הפרטים שקיבלת.\n3. אשר ללקוח: \"תודה! שמרתי את הפרטים, נציג יחזור אליך בהקדם.\"\nאל תפעיל את save_lead בלי שם ובלי פרט התקשרות, ואל תפעיל אותו שוב לאותו לקוח."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        544,
+        192
+      ],
+      "id": "bd4d53da-4419-4f57-b7ac-3660bf4b4c96",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        368,
+        368
+      ],
+      "id": "8e8d2108-30b8-4c3a-978e-5f71fefdaa23",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "Ur2cI8wcD96eBmXp",
+          "name": "OpenAI account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1184,
+        704
+      ],
+      "id": "9f4b5b93-8462-4c3a-bae3-42ed644ffa0e",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "Ur2cI8wcD96eBmXp",
+          "name": "OpenAI account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        576,
+        560
+      ],
+      "id": "f83eecb4-dae3-4559-b25b-6f8ab9c91c06",
+      "name": "Embeddings OpenAI1",
+      "credentials": {
+        "openAiApi": {
+          "id": "Ur2cI8wcD96eBmXp",
+          "name": "OpenAI account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1264,
+        240
+      ],
+      "id": "84a34b67-a4fd-4ec1-9b29-7addcdedeb96",
+      "name": "Send a text message",
+      "webhookId": "1bce9ec9-6197-4925-9e6b-9b1364b33e0c",
+      "credentials": {
+        "telegramApi": {
+          "id": "ItAnM1f0Jf8uJa7g",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "\nסוכן שירות לקוחות\nבוט טלגרם #2. עונה על שאלות לקוחות לפי מדיניות ומוצרים שנטענו מראש (RAG).",
+        "height": 192,
+        "width": 272,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -432,
+        32
+      ],
+      "typeVersion": 1,
+      "id": "6d67324c-2ce1-4adb-9db5-430d59a653cd",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "### Telegram Trigger\nמקבל הודעה מלקוח בבוט התמיכה.\n",
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "239a010c-da8e-4783-9fea-9bd228e59b4b",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "### AI Agent\nעונה על השאלה בעזרת gpt-4o-mini ושני כלי החיפוש (מדיניות + מוצרים).",
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        544,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "eaf028a5-e142-4fee-b992-6bcb213a1617",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "### Send a text message\nשולח את תשובת הסוכן חזרה ללקוח בטלגרם.",
+        "height": 176,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1200,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "b98af430-058f-4adb-a9f0-b63351c9ad5f",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "### Simple Vector Store1 — מוצרים\nמאגר וקטורי של קטלוג המוצרים; נטען מ מ- WF7\n",
+        "height": 176,
+        "width": 224,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        320,
+        592
+      ],
+      "typeVersion": 1,
+      "id": "bc07de35-4b9f-4374-b621-f57598846d52",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "### Simple Vector Store \n מדיניות\nמאגר וקטורי של מסמכי \nמדיניות/נהלים; נטען מ\nWF7\n",
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        688,
+        592
+      ],
+      "typeVersion": 1,
+      "id": "8862aabf-4d3c-4919-a23a-55b9bc83ba09",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "השתמש בזה בכדי למצוא מידע על מלאי ומוצרים",
+        "qdrantCollection": {
+          "__rl": true,
+          "value": "Products",
+          "mode": "list",
+          "cachedResultName": "Products"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "typeVersion": 1.3,
+      "position": [
+        608,
+        432
+      ],
+      "id": "19866d27-ff6e-4c07-a387-4fdb51018a7b",
+      "name": "Qdrant Vector Store",
+      "credentials": {
+        "qdrantApi": {
+          "id": "SvCRAS73n7ySi9cH",
+          "name": "Qdrant account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "מדיניות החברה: החזרות, החלפות, משלוחים, אחריות, שעות פעילות, תשלומים ומחירים",
+        "qdrantCollection": {
+          "__rl": true,
+          "value": "Policies",
+          "mode": "list",
+          "cachedResultName": "Policies"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "typeVersion": 1.3,
+      "position": [
+        1248,
+        448
+      ],
+      "id": "86ca8eea-0eba-423e-b836-46b078e2455a",
+      "name": "Qdrant Vector Store1",
+      "credentials": {
+        "qdrantApi": {
+          "id": "SvCRAS73n7ySi9cH",
+          "name": "Qdrant account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "Saves a new sales lead. Use ONLY after the customer gave their name AND a phone number or email. Call it once per customer.",
+        "method": "POST",
+        "url": "https://reuttevet.app.n8n.cloud/webhook/a35ea6d4-19c5-4c9d-be27-dc92d9a3a566",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "Name",
+              "value": "={{ $fromAI('Name', 'Customer full name', 'string') }}"
+            },
+            {
+              "name": "Email",
+              "value": "={{ $fromAI('Email', 'Customer email, or empty string if not given', 'string') }}"
+            },
+            {
+              "name": "Interest",
+              "value": "={{ $fromAI('Interest', 'Product or category the customer is interested in', 'string') }}"
+            },
+            {
+              "name": "Source",
+              "value": "Telegram"
+            },
+            {
+              "name": "Phone",
+              "value": "={{ $fromAI('Phone', 'Customer phone number, or empty string if not given', 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        912,
+        416
+      ],
+      "id": "9ef3521d-c172-4a07-9078-523291b272f2",
+      "name": "Save Lead"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=   {{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        512,
+        400
+      ],
+      "id": "93f3b461-9aae-4ad6-8d1c-d0529390d33b",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "content": "שומר ליד שהגיע מהטלגרם",
+        "height": 80,
+        "width": 150,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1040,
+        480
+      ],
+      "typeVersion": 1,
+      "id": "21777cf4-7b86-4cb0-a86b-2ebeb536cbc5",
+      "name": "Sticky Note6"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Qdrant Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qdrant Vector Store1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qdrant Vector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Lead": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "94480546-3b17-4292-ba50-982c40fff506",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "07575430e90b765819bb767e9d4ab70d4544ee7d93176bac9436678f7b3851f7"
+  },
+  "nodeGroups": [],
+  "id": "hYnq9nyTjjcd4cpv",
+  "tags": []
+}
